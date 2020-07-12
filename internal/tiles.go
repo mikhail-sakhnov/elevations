@@ -4,6 +4,8 @@ package internal
 type TileCoordinatesPair struct {
 	X int
 	Y int
+
+	From Location
 }
 
 // Tiles collection of tiles

@@ -10,13 +10,13 @@ import (
 
 type mapboxMockedClient func(ctx context.Context, route Tiles) (EncodedElevationData, error)
 
-func (m mapboxMockedClient) GetElevationData(ctx context.Context, route Tiles) (EncodedElevationData, error) {
+func (m mapboxMockedClient) GetElevationPNGs(ctx context.Context, route Tiles) (EncodedElevationData, error) {
 	return m(ctx, route)
 }
 
-type decoderMock func(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error)
+type decoderMock func(ctx context.Context, tiles Tiles, data EncodedElevationData) (RouteElevation, error)
 
-func (d decoderMock) Decode(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error) {
+func (d decoderMock) Decode(ctx context.Context, tiles Tiles, data EncodedElevationData) (RouteElevation, error) {
 	return d(ctx, tiles, data)
 }
 
@@ -54,8 +54,8 @@ func TestElevationService(t *testing.T) {
 			mapbox: mapboxMockedClient(func(ctx context.Context, route Tiles) (EncodedElevationData, error) {
 				return EncodedElevationData{}, nil
 			}),
-			decoder: decoderMock(func(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error) {
-				return Elevation{}, fmt.Errorf("some error while decoding data: %w", expectedErr)
+			decoder: decoderMock(func(ctx context.Context, tiles Tiles, data EncodedElevationData) (RouteElevation, error) {
+				return RouteElevation{}, fmt.Errorf("some error while decoding data: %w", expectedErr)
 			}),
 		}
 

@@ -31,8 +31,8 @@ func NewMapboxClient(t string) *MapboxClient {
 	}
 }
 
-// GetElevationData loads elevation data for given set of tiles
-func (m MapboxClient) GetElevationData(ctx context.Context, tiles Tiles) (EncodedElevationData, error) {
+// GetElevationPNGs loads elevation data for given set of tiles
+func (m MapboxClient) GetElevationPNGs(ctx context.Context, tiles Tiles) (EncodedElevationData, error) {
 	// TODO: super naive and stupid implementation, do it another way
 	result := EncodedElevationData{
 		png: map[TileCoordinatesPair][]byte{},

@@ -6,7 +6,8 @@ import "github.com/buckhx/tiles"
 func LatLonToTile(l Location) TileCoordinatesPair {
 	t := tiles.FromCoordinate(l.Latitude, l.Longitude, defaultZoomLevel)
 	return TileCoordinatesPair{
-		X: t.X,
-		Y: t.Y,
+		X:    t.X,
+		Y:    t.Y,
+		From: l,
 	}
 }
