@@ -3,10 +3,11 @@ package internal
 import (
 	"context"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 )
 
 type mapboxClient interface {
-	GetTileElevationData(ctx context.Context, l MercatorCoordinates) (EncodedElevationData, error)
+	GetTileElevationData(ctx context.Context, l []TileCoordinatesPair) (EncodedElevationData, error)
 }
 
 type decoder interface {
@@ -37,9 +38,14 @@ func (es ElevationService) GetElevation(ctx context.Context, route Route) (Eleva
 	if !route.Valid() {
 		return elevation, fmt.Errorf("invalid route %v", route)
 	}
-	//coord := LatLonToMercator(location)
+	tiles := make([]TileCoordinatesPair, len(route))
+	for i, loc := range route {
+		tiles[i] = LatLonToTile(loc)
+	}
+	spew.Dump(tiles)
 	//
-	//elevationData, err := es.mapbox.GetTileElevationData(ctx, coord)
+	elevationData, err := es.mapbox.GetTileElevationData(ctx, tiles)
+	spew.Dump(elevationData, err)
 	//if err != nil {
 	//	return elevation, fmt.Errorf("mapbox api error: %w", err)
 	//}

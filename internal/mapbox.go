@@ -27,9 +27,12 @@ func NewMapboxClient(t string) *MapboxClient {
 }
 
 // GetTile loads tile from mapbox api for the given location
-func (m MapboxClient) GetTileElevationData(ctx context.Context, l MercatorCoordinates) (EncodedElevationData, error) {
-	finalURL := fmt.Sprintf("%s/%d/%f/%f.pngraw?access_token=%s", defaultTileAPIUrl, defaultZoomLevel, l.X, l.Y, m.token)
-	spew.Dump(finalURL)
-	fmt.Println(finalURL)
+func (m MapboxClient) GetTileElevationData(ctx context.Context, l []TileCoordinatesPair) (EncodedElevationData, error) {
+	for _, t := range l {
+		finalURL := fmt.Sprintf("%s/%d/%d/%d.pngraw?access_token=%s", defaultTileAPIUrl, defaultZoomLevel, t.X, t.Y, m.token)
+		spew.Dump(finalURL)
+		fmt.Println(finalURL)
+	}
+
 	panic("implement me")
 }
