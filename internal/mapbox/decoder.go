@@ -1,33 +1,40 @@
-package internal
+package mapbox
 
 import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/soider/elevations/internal/geo"
 	"image"
 	"image/color"
 	"image/png"
 )
 
-// MapboxElevationDecoder decodes elevation data from pngraw format
-type MapboxElevationDecoder struct{}
+// ElevationDecoder decodes elevation data from pngraw format
+type ElevationDecoder struct{}
 
 // Decode decodes elevation data from pngraw format
 // Every rawpng file is png 256x256 size
 // To avoid projecting real lat\long pair to the actual pixel in the tile
 // we take 4 points (middle points of each quadrant of the tile)
 // and calculate average tile elevation based on the elevations at those points
-func (m MapboxElevationDecoder) Decode(ctx context.Context, data EncodedElevationData) (RouteElevation, error) {
-	var result RouteElevation
+// Not production ready
+// To be production ready:
+// - metrics for cache hit
+// - metrics for decode duration
+// - cache for tiles elevation
+// -
+func (m ElevationDecoder) Decode(ctx context.Context, data EncodedElevationData) (geo.RouteElevation, error) {
+	var result geo.RouteElevation
 	for tileCoord, rawPng := range data.png {
 		image, err := png.Decode(bytes.NewBuffer(rawPng))
 		if err != nil {
 			return result, fmt.Errorf("broken png file from the mapbox")
 		}
 		result = append(result,
-			Elevation{
-				tileCoord.From,
-				getAverageElevation(
+			geo.Elevation{
+				Location: tileCoord.From,
+				Elevation: getAverageElevation(
 					getColorAtTheMiddleOfTopLeftQuadrant(image),
 					getColorAtTheMiddleOfTopRightQuadrant(image),
 					getColorAtTheMiddleOfBottomLeftQuadrant(image),
@@ -65,6 +72,6 @@ func getElevationAtThePoint(a color.Color) float64 {
 }
 
 // NewMapboxElevationDecoder constructor
-func NewMapboxElevationDecoder() *MapboxElevationDecoder {
-	return &MapboxElevationDecoder{}
+func NewMapboxElevationDecoder() *ElevationDecoder {
+	return &ElevationDecoder{}
 }

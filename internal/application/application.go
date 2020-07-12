@@ -3,6 +3,7 @@ package application
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/soider/elevations/internal"
+	"github.com/soider/elevations/internal/mapbox"
 )
 
 // Application entry point structure
@@ -28,8 +29,8 @@ func Build(cfg Config) *Application {
 
 func (app *Application) setupDependencies() {
 	app.elevationService = internal.NewElevationService(
-		internal.NewMapboxClient(app.cfg.MapboxToken),
-		internal.NewMapboxElevationDecoder(),
+		mapbox.NewClient(app.cfg.MapboxToken),
+		mapbox.NewMapboxElevationDecoder(),
 	)
 }
 

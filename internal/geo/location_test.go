@@ -1,4 +1,4 @@
-package internal
+package geo
 
 import (
 	"github.com/stretchr/testify/assert"

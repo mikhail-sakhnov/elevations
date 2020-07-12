@@ -1,4 +1,4 @@
-package internal
+package geo
 
 // Route represents collection of intermediate points
 type Route []Location

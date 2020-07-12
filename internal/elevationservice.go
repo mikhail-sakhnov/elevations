@@ -3,24 +3,17 @@ package internal
 import (
 	"context"
 	"fmt"
+	"github.com/soider/elevations/internal/geo"
+	"github.com/soider/elevations/internal/mapbox"
 )
 
 type mapboxClient interface {
-	GetElevationPNGs(ctx context.Context, tiles Tiles) (EncodedElevationData, error)
+	GetElevationPNGs(ctx context.Context, tiles geo.Tiles) (mapbox.EncodedElevationData, error)
 }
 
 type decoder interface {
-	Decode(ctx context.Context, data EncodedElevationData) (RouteElevation, error)
+	Decode(ctx context.Context, data mapbox.EncodedElevationData) (geo.RouteElevation, error)
 }
-
-// Elevation represents elevation value
-type Elevation struct {
-	Location  Location `json:"location"`
-	Elevation float64  `json:"elevation"`
-}
-
-// RouteElevation represents elevation values for a route
-type RouteElevation []Elevation
 
 // NewElevationService builds new elevation service
 func NewElevationService(m mapboxClient, d decoder) *ElevationService {
@@ -37,14 +30,14 @@ type ElevationService struct {
 }
 
 // GetElevation gets elevation data for the given location
-func (es ElevationService) GetElevation(ctx context.Context, route Route) (RouteElevation, error) {
-	var routeElevation RouteElevation
+func (es ElevationService) GetElevation(ctx context.Context, route geo.Route) (geo.RouteElevation, error) {
+	var routeElevation geo.RouteElevation
 	if !route.Valid() {
 		return routeElevation, fmt.Errorf("invalid route %v", route)
 	}
-	tiles := make(Tiles, len(route))
+	tiles := make(geo.Tiles, len(route))
 	for i, loc := range route {
-		tiles[i] = LatLonToTile(loc)
+		tiles[i] = geo.LatLonToTile(loc)
 	}
 
 	rawPngElevation, err := es.mapbox.GetElevationPNGs(ctx, tiles)

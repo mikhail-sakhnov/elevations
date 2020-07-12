@@ -2,7 +2,7 @@ package application
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/soider/elevations/internal"
+	"github.com/soider/elevations/internal/geo"
 )
 
 func (app *Application) setupRoutes() {
@@ -25,7 +25,7 @@ func (app *Application) healthHandler(c *gin.Context) {
 }
 
 func (app *Application) routeElevation(c *gin.Context) {
-	var route []internal.Location
+	var route []geo.Location
 	if err := c.ShouldBindJSON(&route); err != nil {
 		c.JSON(400, map[string]string{
 			"error": err.Error(), // XXX: in the production ready system we must not expose all internal errors
