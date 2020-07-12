@@ -3,20 +3,22 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 )
 
 type mapboxClient interface {
-	GetTileElevationData(ctx context.Context, l []TileCoordinatesPair) (EncodedElevationData, error)
+	GetElevationData(ctx context.Context, tiles Tiles) (EncodedElevationData, error)
 }
 
 type decoder interface {
-	Decode(ctx context.Context, location Location, data EncodedElevationData) (Elevation, error)
+	Decode(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error)
 }
 
 // Elevation represents elevation value
 type Elevation struct {
 }
+
+// RouteElevation represents elevation values for a route
+type RouteElevation []Elevation
 
 // NewElevationService builds new elevation service
 func NewElevationService(m mapboxClient, d decoder) *ElevationService {
@@ -38,22 +40,22 @@ func (es ElevationService) GetElevation(ctx context.Context, route Route) (Eleva
 	if !route.Valid() {
 		return elevation, fmt.Errorf("invalid route %v", route)
 	}
-	tiles := make([]TileCoordinatesPair, len(route))
+	tiles := make(Tiles, len(route))
 	for i, loc := range route {
 		tiles[i] = LatLonToTile(loc)
 	}
-	spew.Dump(tiles)
-	//
-	elevationData, err := es.mapbox.GetTileElevationData(ctx, tiles)
-	spew.Dump(elevationData, err)
-	//if err != nil {
-	//	return elevation, fmt.Errorf("mapbox api error: %w", err)
-	//}
-	//
-	//elevation, err = es.decoder.Decode(ctx, location, elevationData)
-	//if err != nil {
-	//	return elevation, fmt.Errorf("decode error for location `%v`: %w", location, err)
-	//}
+
+	elevationData, err := es.mapbox.GetElevationData(ctx, tiles)
+
+	if err != nil {
+		return elevation, fmt.Errorf("mapbox api error: %w", err)
+	}
+
+	elevation, err = es.decoder.Decode(ctx, tiles, elevationData)
+
+	if err != nil {
+		return elevation, fmt.Errorf("decode error for route: %w", err)
+	}
 
 	return elevation, nil
 }

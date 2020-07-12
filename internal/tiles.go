@@ -5,3 +5,6 @@ type TileCoordinatesPair struct {
 	X int
 	Y int
 }
+
+// Tiles collection of tiles
+type Tiles []TileCoordinatesPair

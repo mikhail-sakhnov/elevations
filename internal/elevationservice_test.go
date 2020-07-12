@@ -8,16 +8,16 @@ import (
 	"testing"
 )
 
-type mapboxMockedClient func(ctx context.Context, route []TileCoordinatesPair) (EncodedElevationData, error)
+type mapboxMockedClient func(ctx context.Context, route Tiles) (EncodedElevationData, error)
 
-func (m mapboxMockedClient) GetTileElevationData(ctx context.Context, route []TileCoordinatesPair) (EncodedElevationData, error) {
+func (m mapboxMockedClient) GetElevationData(ctx context.Context, route Tiles) (EncodedElevationData, error) {
 	return m(ctx, route)
 }
 
-type decoderMock func(ctx context.Context, location Location, data EncodedElevationData) (Elevation, error)
+type decoderMock func(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error)
 
-func (d decoderMock) Decode(ctx context.Context, location Location, data EncodedElevationData) (Elevation, error) {
-	return d(ctx, location, data)
+func (d decoderMock) Decode(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error) {
+	return d(ctx, tiles, data)
 }
 
 func TestElevationService(t *testing.T) {
@@ -34,7 +34,7 @@ func TestElevationService(t *testing.T) {
 	t.Run("must_return_error_if_mapbox_failed", func(t *testing.T) {
 		expectedErr := errors.New("random error from remote api")
 		svc := ElevationService{
-			mapbox: mapboxMockedClient(func(ctx context.Context, route []TileCoordinatesPair) (EncodedElevationData, error) {
+			mapbox: mapboxMockedClient(func(ctx context.Context, route Tiles) (EncodedElevationData, error) {
 				return EncodedElevationData{}, fmt.Errorf("some error from mapbox: %w", expectedErr)
 			}),
 		}
@@ -51,10 +51,10 @@ func TestElevationService(t *testing.T) {
 	t.Run("must_return_error_if_mapbox_decoding_failed", func(t *testing.T) {
 		expectedErr := errors.New("decoder error")
 		svc := ElevationService{
-			mapbox: mapboxMockedClient(func(ctx context.Context, route []TileCoordinatesPair) (EncodedElevationData, error) {
+			mapbox: mapboxMockedClient(func(ctx context.Context, route Tiles) (EncodedElevationData, error) {
 				return EncodedElevationData{}, nil
 			}),
-			decoder: decoderMock(func(ctx context.Context, location Location, data EncodedElevationData) (Elevation, error) {
+			decoder: decoderMock(func(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error) {
 				return Elevation{}, fmt.Errorf("some error while decoding data: %w", expectedErr)
 			}),
 		}
@@ -70,6 +70,6 @@ func TestElevationService(t *testing.T) {
 	})
 
 	t.Run("must_return_elevation_from_the_decoded_data", func(t *testing.T) {
-
+		panic("test is not implemented")
 	})
 }

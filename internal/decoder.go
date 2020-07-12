@@ -4,11 +4,11 @@ import (
 	"context"
 )
 
-// MapboxElevationDecoder 
+// MapboxElevationDecoder decodes elevation data from pngraw format
 type MapboxElevationDecoder struct{}
 
 // Decode decodes elevation data from pngraw format
-func (m MapboxElevationDecoder) Decode(ctx context.Context, location Location, data EncodedElevationData) (Elevation, error) {
+func (m MapboxElevationDecoder) Decode(ctx context.Context, tiles Tiles, data EncodedElevationData) (Elevation, error) {
 	panic("implement me")
 }
 
