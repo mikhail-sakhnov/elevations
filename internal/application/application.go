@@ -27,7 +27,10 @@ func Build(cfg Config) *Application {
 }
 
 func (app *Application) setupDependencies() {
-	app.elevationService = internal.NewElevationService()
+	app.elevationService = internal.NewElevationService(
+		internal.NewMapboxClient(app.cfg.MapboxToken),
+		internal.NewMapboxElevationDecoder(),
+	)
 }
 
 // Run runs gin main loop
